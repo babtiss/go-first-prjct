@@ -1,0 +1,26 @@
+package service
+
+import (
+	todo "go-application/model"
+	"go-application/pkg/repository"
+)
+
+type Authorization interface {
+	CreateUser(user todo.User) (int, error)
+}
+
+type TodoList interface {
+}
+
+type TodoItem interface {
+}
+
+type Service struct {
+	Authorization
+	TodoList
+	TodoItem
+}
+
+func NewService(repository *repository.Repository) *Service {
+	return &Service{}
+}
