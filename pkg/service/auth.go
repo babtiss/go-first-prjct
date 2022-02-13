@@ -7,6 +7,8 @@ import (
 	"go-application/pkg/repository"
 )
 
+const HashCode = "1frercfr"
+
 type AuthService struct {
 	Repo repository.Authorization
 }
@@ -22,10 +24,8 @@ func (s AuthService) CreateUser(user todo.User) (int, error) {
 
 func generateHashForPassword(password string) string {
 
-	// ! Придумать функцию для хеширования паролей
-
 	hashForPassword := sha1.New()
 	hashForPassword.Write([]byte(password))
 
-	return fmt.Sprintf("%x", hashForPassword)
+	return fmt.Sprintf("%x", hashForPassword.Sum([]byte(HashCode)))
 }
