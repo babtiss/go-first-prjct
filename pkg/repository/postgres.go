@@ -29,3 +29,10 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 
 	return db, nil
 }
+
+//
+// for run:
+// docker run --name=go-db -e POSTGRES_PASSWORD='babtis' -p 5436:5432 -d --rm postgres
+// for check:
+// docker exec -it <id> /bin/bash
+//
