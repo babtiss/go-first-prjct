@@ -10,7 +10,11 @@ import (
 	"time"
 )
 
-const HashCode = "1frercfr"
+const (
+	TokenLifeTime = 24 * time.Hour
+	PasswordHash  = "1frerYcfr45fb"
+	JWTSigned     = "fdgergYerf45t67h"
+)
 
 type tokenClaims struct {
 	jwt.StandardClaims
@@ -34,13 +38,13 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		jwt.SigningMethodHS256,
 		&tokenClaims{
 			jwt.StandardClaims{
-				ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+				ExpiresAt: time.Now().Add(TokenLifeTime).Unix(),
 				IssuedAt:  time.Now().Unix(),
 			},
 			user.Id,
 		})
 
-	tokenCode := "fdgergerf45t67h"
+	tokenCode := JWTSigned
 	return token.SignedString([]byte(tokenCode))
 }
 
@@ -55,12 +59,12 @@ func (s *AuthService) ParseJWT(tokenString string) (int, error) {
 		tokenString,
 		&tokenClaims{},
 
-		// Проверочка метода подписи токена ( как я понял может прийти не HMAC и тогда всё ломается)
+		// Проверочка метода подписи токена (как я понял может прийти не HMAC и тогда всё ломается)
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("invalid token method")
 			}
-			return []byte("fdgergerf45t67h"), nil
+			return []byte(JWTSigned), nil
 		})
 
 	if err != nil {
@@ -69,7 +73,7 @@ func (s *AuthService) ParseJWT(tokenString string) (int, error) {
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, errors.New("it is not struct tokenClaims")
+		return 0, errors.New("struct this token != struct our tokenClaims")
 	}
 
 	return claims.UserId, nil
@@ -80,5 +84,5 @@ func generateHashForPassword(password string) string {
 	hashForPassword := sha1.New()
 	hashForPassword.Write([]byte(password))
 
-	return fmt.Sprintf("%x", hashForPassword.Sum([]byte(HashCode)))
+	return fmt.Sprintf("%x", hashForPassword.Sum([]byte(PasswordHash)))
 }

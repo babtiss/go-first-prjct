@@ -6,15 +6,20 @@ import (
 	"strings"
 )
 
+const (
+	BearerToken  = "Bearer"
+	GetHeaderKey = "Authorization"
+)
+
 func (h *Handler) userID(c *gin.Context) {
-	header := c.GetHeader("Authorization")
+	header := c.GetHeader(GetHeaderKey)
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "header is empty")
 		return
 	}
 
 	headerArray := strings.Split(header, " ")
-	if len(headerArray[1]) == 0 || len(headerArray) != 2 || headerArray[0] != "Bearer" {
+	if len(headerArray[1]) == 0 || len(headerArray) != 2 || headerArray[0] != BearerToken {
 		newErrorResponse(c, http.StatusUnauthorized, "header is invalid")
 		return
 	}
