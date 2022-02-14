@@ -71,3 +71,7 @@ func (r *TodoListPostgres) Delete(userId, listId int) error {
 
 	return err
 }
+func (r *TodoListPostgres) Update(userId, listId int, input todo.ListInput) error {
+
+	return nil
+}

@@ -77,3 +77,6 @@ func (r *TodoItemPostgres) Delete(userId, itemId int) error {
 	_, err := r.db.Exec(query, userId, itemId)
 	return err
 }
+func (r *TodoItemPostgres) Update(userId, id int, input todo.ItemInput) error {
+	return nil
+}

@@ -24,3 +24,13 @@ type ListsItem struct {
 	ListId int
 	ItemId int
 }
+
+type ListInput struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
+type ItemInput struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
