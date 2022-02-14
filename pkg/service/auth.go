@@ -44,8 +44,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 			user.Id,
 		})
 
-	tokenCode := JWTSigned
-	return token.SignedString([]byte(tokenCode))
+	return token.SignedString([]byte(JWTSigned))
 }
 
 func (s *AuthService) CreateUser(user todo.User) (int, error) {
@@ -55,27 +54,18 @@ func (s *AuthService) CreateUser(user todo.User) (int, error) {
 
 func (s *AuthService) ParseJWT(tokenString string) (int, error) {
 
-	token, err := jwt.ParseWithClaims(
-		tokenString,
-		&tokenClaims{},
-
-		// Проверочка метода подписи токена (как я понял может прийти не HMAC и тогда всё ломается)
-		func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("invalid token method")
-			}
-			return []byte(JWTSigned), nil
-		})
+	token, err := jwt.ParseWithClaims(tokenString, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(JWTSigned), nil
+	})
 
 	if err != nil {
-		return 0, err
+		return 0, errors.New("что-то сломалось")
 	}
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
 		return 0, errors.New("struct this token != struct our tokenClaims")
 	}
-
 	return claims.UserId, nil
 }
 
