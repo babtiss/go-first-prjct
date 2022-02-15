@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	todo "go-application/model"
+	"strings"
 )
 
 type TodoItemPostgres struct {
@@ -77,6 +78,30 @@ func (r *TodoItemPostgres) Delete(userId, itemId int) error {
 	_, err := r.db.Exec(query, userId, itemId)
 	return err
 }
-func (r *TodoItemPostgres) Update(userId, id int, input todo.ItemInput) error {
-	return nil
+func (r *TodoItemPostgres) Update(userId, itemId int, input todo.ItemInput) error {
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.Title)
+		argId++
+	}
+
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+
+	query := fmt.Sprintf(`UPDATE %s ti SET %s FROM %s li, %s ul
+									WHERE ti.id = li.item_id AND li.list_id = ul.list_id AND ul.user_id = $%d AND ti.id = $%d`,
+		todoItemsTableName, setQuery, listsItemsTableName, usersListsTableName, argId, argId+1)
+	args = append(args, userId, itemId)
+
+	_, err := r.db.Exec(query, args...)
+	return err
 }

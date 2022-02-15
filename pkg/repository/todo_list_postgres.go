@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	todo "go-application/model"
+	"strings"
 )
 
 type TodoListPostgres struct {
@@ -72,6 +73,28 @@ func (r *TodoListPostgres) Delete(userId, listId int) error {
 	return err
 }
 func (r *TodoListPostgres) Update(userId, listId int, input todo.ListInput) error {
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
 
-	return nil
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.Title)
+		argId += 1
+	}
+
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId += 1
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+
+	query := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.list_id AND ul.list_id=$%d AND ul.user_id=$%d",
+		todoListsTableName, setQuery, usersListsTableName, argId, argId+1)
+	args = append(args, listId, userId)
+
+	_, err := r.DB.Exec(query, args...)
+	return err
 }
